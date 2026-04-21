@@ -17,19 +17,19 @@ Scrapes product listings, runs word frequency analysis, and captures RUFUS AI Q&
 
 In your AI platform's skill import UI, paste:
 ```
-https://github.com/YOUR_USERNAME/amazon-rufus-spy
+https://github.com/FelixDeng/amazon-rufus-spy
 ```
 
 ### Option B: Claude Code plugin
 
 ```bash
-claude plugin install github:YOUR_USERNAME/amazon-rufus-spy
+claude plugin install github:FelixDeng/amazon-rufus-spy
 ```
 
 ### Option C: Manual clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/amazon-rufus-spy
+git clone https://github.com/FelixDeng/amazon-rufus-spy
 # Then tell your AI: "read AGENTS.md or CLAUDE.md in the cloned directory"
 ```
 
