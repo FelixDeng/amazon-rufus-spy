@@ -1,0 +1,12 @@
+{
+  "name": "amazon-rufus-spy",
+  "version": "0.1.0",
+  "description": "Amazon competitive analysis: scrape product listings, word frequency, and RUFUS Q&A → Feishu Base",
+  "skills": [
+    {
+      "name": "amazon-spy",
+      "path": "skills/amazon-spy.md",
+      "description": "Run Amazon competitive analysis pipeline (3 stages) and write results to Feishu Base"
+    }
+  ]
+}
