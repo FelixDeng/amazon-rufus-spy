@@ -1,0 +1,12 @@
+{
+  "name": "amazon-rufus-spy",
+  "version": "0.1.0",
+  "description": "Cross-platform AI skill: Amazon competitive analysis (listings + word freq + RUFUS Q&A → Feishu Base)",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "playwright": "^1.52.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
