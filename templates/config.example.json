@@ -1,0 +1,14 @@
+{
+  "site": "US",
+  "deliveryZip": "10010",
+  "baseId": "YOUR_FEISHU_BASE_TOKEN",
+  "tables": {
+    "asins": "YOUR_TABLE_ID_FOR_ASINS",
+    "wordfreq": "YOUR_TABLE_ID_FOR_WORDFREQ",
+    "rufus": "YOUR_TABLE_ID_FOR_RUFUS"
+  },
+  "asins": [
+    "B0BXGFFSL1",
+    "B085TFF7M1"
+  ]
+}
