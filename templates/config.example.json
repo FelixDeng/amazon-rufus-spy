@@ -5,7 +5,9 @@
   "tables": {
     "asins": "YOUR_TABLE_ID_FOR_ASINS",
     "wordfreq": "YOUR_TABLE_ID_FOR_WORDFREQ",
-    "rufus": "YOUR_TABLE_ID_FOR_RUFUS"
+    "rufus": "YOUR_TABLE_ID_FOR_RUFUS",
+    "keywords": "YOUR_TABLE_ID_FOR_KEYWORDS",
+    "search_rank": "YOUR_TABLE_ID_FOR_SEARCH_RANK"
   },
   "asins": [
     "B0BXGFFSL1",
