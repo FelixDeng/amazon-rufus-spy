@@ -1,16 +1,17 @@
 ---
 name: amazon-spy
-description: Run Amazon competitive analysis (3-stage pipeline: product listings → word frequency → RUFUS Q&A) and write all results to Feishu Base. Trigger when user asks to analyze competitor ASINs, run competitive analysis, scrape RUFUS Q&A, or refresh Feishu competitor data.
+description: Run Amazon competitive analysis (4-stage pipeline: product listings → word frequency → RUFUS Q&A → search rank analysis) and write all results to Feishu Base. Trigger when user asks to analyze competitor ASINs, run competitive analysis, scrape RUFUS Q&A, check keyword search rank, or refresh Feishu competitor data.
 ---
 
 # Amazon Competitive Analysis Skill
 
-This skill runs a 3-stage Amazon competitor intelligence pipeline:
+This skill runs a 4-stage Amazon competitor intelligence pipeline:
 - **Stage 1** — Scrape product titles, brands, and 5-point bullet copy
 - **Stage 2** — Word frequency analysis across all scraped products
 - **Stage 3** — Capture RUFUS AI Q&A (Amazon's shopping assistant answers for each product)
+- **Stage 4** — Keyword search rank analysis (check if target ASINs appear in Amazon search results)
 
-Results are written to three tables in a Feishu Base (多维表格).
+Results are written to five tables in a Feishu Base (多维表格).
 
 **Announce at start:** "I'm running the Amazon competitive analysis skill."
 
@@ -178,7 +179,7 @@ export AMAZON_SPY_DIR=~/.amazon-rufus-spy
 | 只抓商品文案 / stage 1 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/run-all.mjs --stage 1` |
 | 只跑词频 / stage 2 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/run-all.mjs --stage 2` |
 | 只跑 RUFUS / stage 3 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/run-all.mjs --stage 3` |
-| 强制重跑 / force | append `--force` to the command above |
+| 强制重跑 / force | append `--force` to the command above (also applies to `--stage 4` and direct `amazon-search-rank.mjs`) |
 | 指定 ASIN，例如"只跑 B0XX 和 B0YY" | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/amazon-scrape-rufus.mjs --asins B0XX,B0YY` |
 | 搜索排名分析 / stage 4 / 关键词排名 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/run-all.mjs --stage 4` |
 | 指定关键词搜索排名 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/amazon-search-rank.mjs --keywords "webcam,4K webcam"` |
@@ -198,8 +199,7 @@ After the command exits, summarize in natural language. Parse the output for the
 - `[error] <ASIN>:` → failure, show the error message
 - `[ok] <ASIN>: 出现 自然位#N` → Stage 4: target ASIN found at organic rank N
 - `[ok] <ASIN>: 出现 自然位#—(广告位)` → Stage 4: target ASIN found in sponsored only
-- `[ok] <ASIN>: 未出现` → Stage 4: target ASIN not on page 1 for this keyword
-- `[skip] <ASIN>: 状态已完成` → Stage 4: already done for this keyword+ASIN pair (normal)
+- `[ok] <ASIN>: 未出现` → Stage 4: scan completed — ASIN not found on page 1 (normal, not an error)
 
 Example report:
 > "分析完成！共处理 10 个竞品，结果已写入飞书：
@@ -230,4 +230,5 @@ Include the Feishu Base URL if available:
 | `lark-cli ... 失败` + `auth` / `401` | "飞书认证已过期" | 运行 `lark-cli auth login` 重新登录 |
 | `Missing config.json` | "配置文件丢失" | 删除 `~/.amazon-rufus-spy/config.json` 并重新运行（触发 Phase 1 向导） |
 | `[skip] ... 未检测到 RUFUS 模块` | 正常情况 | 无需处理，在结果汇报中说明 |
+| `[warn] 没有启用的关键词` | "关键词管理表为空" | "请在飞书「关键词管理」表中添加关键词并将状态设为「启用」，然后重新运行 Stage 4" |
 | `node: command not found` | "未找到 Node.js" | 参考 Phase 0.1 的安装链接 |
