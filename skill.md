@@ -197,8 +197,8 @@ After the command exits, summarize in natural language. Parse the output for the
 - `[skip] <ASIN>: 未检测到 RUFUS 模块` → no RUFUS on that product page (normal)
 - `[skip] <ASIN>: 状态已完成` → already done, skipped (normal)
 - `[error] <ASIN>:` → failure, show the error message
-- `[ok] <ASIN>: 出现 自然位#N` → Stage 4: target ASIN found at organic rank N
-- `[ok] <ASIN>: 出现 自然位#—(广告位)` → Stage 4: target ASIN found in sponsored only
+- `[ok] <ASIN>: 出现 自然位#N` → Stage 4: target ASIN found at organic rank N (also writes 自然位排名=N)
+- `[ok] <ASIN>: 出现 广告位#N` → Stage 4: target ASIN found at sponsored rank N (also writes 广告位排名=N)
 - `[ok] <ASIN>: 未出现` → Stage 4: scan completed — ASIN not found on page 1 (normal, not an error)
 
 Example report:
@@ -211,9 +211,9 @@ Example report:
 
 For Stage 4, report like:
 > "搜索排名分析完成！共检查 5 个关键词 × 10 个目标 ASIN：
-> - 「wireless webcam」：B0BXGFFSL1 出现在自然位 #3
-> - 「4K webcam」：B0BXGFFSL1 未出现，B085TFF7M1 出现在广告位
-> 结果已写入飞书搜索排名表。"
+> - 「wireless webcam」：B0BXGFFSL1 出现在自然位 #3，B088TSR6YJ 出现在广告位 #2
+> - 「4K webcam」：B0BXGFFSL1 未出现，B085TFF7M1 出现在自然位 #4
+> 结果已写入飞书搜索排名表（含自然位排名、广告位排名两列）。"
 
 Include the Feishu Base URL if available:
 `https://bytedance.feishu.cn/base/<baseId>`
