@@ -124,6 +124,7 @@ const t5 = createTable(cli, baseToken, "搜索排名", [
   { name: "商品标题", type: "text" },
   { name: "是否出现", type: "single_select", options: [{ name: "是" }, { name: "否" }] },
   { name: "自然位排名", type: "number" },
+  { name: "广告位排名", type: "number" },
   { name: "广告位排序+ASIN", type: "text" },
   { name: "自然位排序+ASIN", type: "text" },
   { name: "状态", type: "single_select", options: [{ name: "已完成" }, { name: "失败" }] },

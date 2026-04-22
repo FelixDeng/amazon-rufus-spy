@@ -189,9 +189,10 @@ async function main() {
           }
 
           const organicIdx = organic.findIndex(i => i.asin === target.asin);
-          const inSponsored = sponsored.some(i => i.asin === target.asin);
-          const appeared = organicIdx >= 0 || inSponsored;
+          const sponsoredIdx = sponsored.findIndex(i => i.asin === target.asin);
+          const appeared = organicIdx >= 0 || sponsoredIdx >= 0;
           const organicRank = organicIdx >= 0 ? organicIdx + 1 : null;
+          const sponsoredRank = sponsoredIdx >= 0 ? sponsoredIdx + 1 : null;
 
           const fields = {
             "关键词": keyword,
@@ -204,9 +205,11 @@ async function main() {
             "抓取时间": now,
           };
           if (organicRank !== null) fields["自然位排名"] = organicRank;
+          if (sponsoredRank !== null) fields["广告位排名"] = sponsoredRank;
 
           createRecord(cfg.baseId, cfg.tables.search_rank, fields);
-          console.log(`  [ok] ${target.asin}: ${appeared ? `出现 自然位#${organicRank ?? "—(广告位)"}` : "未出现"}`);
+          const pos = organicRank ? `自然位#${organicRank}` : sponsoredRank ? `广告位#${sponsoredRank}` : "—";
+          console.log(`  [ok] ${target.asin}: ${appeared ? `出现 ${pos}` : "未出现"}`);
         }
       } catch (e) {
         console.error(`[error] "${keyword}": ${e.message}`);
