@@ -9,6 +9,7 @@
  *   node scripts/amazon-search-rank.mjs --force
  *   node scripts/amazon-search-rank.mjs --keywords "wireless webcam,4K webcam"
  */
+import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 chromium.use(StealthPlugin());
@@ -110,6 +111,10 @@ async function main() {
     console.error("config.json: tables.search_rank 未填写");
     process.exit(1);
   }
+  if (!cfg.tables?.asins) {
+    console.error("config.json: tables.asins 未填写");
+    process.exit(1);
+  }
 
   // Load keywords
   let keywords;
@@ -151,6 +156,7 @@ async function main() {
   );
 
   // Browser
+  mkdirSync(PROFILE_DIR, { recursive: true });
   const context = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
     slowMo: 60,
@@ -174,9 +180,8 @@ async function main() {
         const organicStr = organic.map((item, i) => `#${i + 1}:${item.asin}`).join(", ");
         console.log(`  广告位: ${sponsored.length} 个  自然位: ${organic.length} 个`);
 
-        const now = new Date().toISOString().replace("T", " ").slice(0, 16);
-
         for (const target of targetAsins) {
+          const now = new Date().toISOString().replace("T", " ").slice(0, 16);
           const key = `${keyword}::${target.asin}`;
           if (!force && doneKeys.has(key)) {
             console.log(`  [skip] ${target.asin}: 状态已完成`);
@@ -194,7 +199,7 @@ async function main() {
             "商品标题": target.title,
             "是否出现": appeared ? "是" : "否",
             "广告位排序+ASIN": sponsoredStr || "",
-            "自然位排序+ASIN": organicStr,
+            "自然位排序+ASIN": organicStr || "",
             "状态": "已完成",
             "抓取时间": now,
           };
