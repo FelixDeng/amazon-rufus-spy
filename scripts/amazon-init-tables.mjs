@@ -36,9 +36,13 @@ function createTable(cli, baseToken, name, fields) {
         "--fields", `@${fieldsRel}`,
         "--view", `@${viewRel}`,
       ],
-      { encoding: "utf8", shell: false, windowsHide: true }
+      { encoding: "utf8", shell: process.platform === "win32", windowsHide: true }
     );
-    const raw = r.stdout.trim() || r.stderr.trim();
+    if (r.error) {
+      console.error(`创建表 "${name}" 启动失败:`, r.error.message);
+      process.exit(1);
+    }
+    const raw = (r.stdout ?? "").trim() || (r.stderr ?? "").trim();
     let out;
     try {
       out = JSON.parse(raw);

@@ -34,7 +34,7 @@ export function larkCli(...args) {
   const cli = resolveLarkCli();
   const r = spawnSync(cli, args, {
     encoding: "utf8",
-    shell: false,
+    shell: process.platform === "win32",
     windowsHide: true,
     cwd: ROOT,
   });
@@ -115,7 +115,7 @@ export function uploadAttachment(baseId, tableId, recordId, filePath) {
     "--record-id", recordId,
     "--field-id", "截图",
     "--file", base,
-  ], { encoding: "utf8", shell: false, windowsHide: true, cwd: dir });
+  ], { encoding: "utf8", shell: process.platform === "win32", windowsHide: true, cwd: dir });
   if (r.status !== 0) {
     throw new Error(`lark-cli base +record-upload-attachment 失败:\n${r.stderr || r.stdout}`);
   }
