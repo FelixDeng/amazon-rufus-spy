@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 /**
- * 一次性脚本：在指定飞书 Base 中创建竞品分析所需的三张表。
+ * 一次性脚本：在指定飞书 Base 中创建竞品分析所需的五张表。
  *
  * 用法：
  *   node scripts/amazon-init-tables.mjs --base-token YOUR_BASE_TOKEN
  *
- * 成功后打印三张表的 tableId，填入 config.json 的 tables 字段。
+ * 成功后打印五张表的 tableId，填入 config.json 的 tables 字段。
  */
 import { spawnSync } from "node:child_process";
 import { writeFileSync, unlinkSync } from "node:fs";
-import { existsSync } from "node:fs";
 
 function arg(name) {
   const i = process.argv.indexOf(name);
@@ -18,10 +17,6 @@ function arg(name) {
 
 function resolveLarkCli() {
   if (process.env.LARK_CLI) return process.env.LARK_CLI;
-  if (process.platform === "win32") {
-    const g = "D:\\nodejs\\node_global\\node_modules\\@larksuite\\cli\\bin\\lark-cli.exe";
-    if (existsSync(g)) return g;
-  }
   return "lark-cli";
 }
 
@@ -52,7 +47,6 @@ function createTable(cli, baseToken, name, fields) {
       process.exit(1);
     }
     if (r.status !== 0) {
-      // 表已存在：从 hint 中提取 table_id
       const hint = out?.error?.hint || out?.error?.detail?.hint || "";
       const m = hint.match(/\(([a-zA-Z0-9]+)\)/);
       if (m) {
@@ -111,5 +105,26 @@ const t3 = createTable(cli, baseToken, "RUFUS问答", [
   { name: "抓取时间", type: "datetime", style: { format: "yyyy-MM-dd HH:mm" } },
 ]);
 
-console.log("\n✅ 三张表创建成功，请将以下 ID 填入 config.json 的 tables 字段：\n");
-console.log(JSON.stringify({ asins: t1, wordfreq: t2, rufus: t3 }, null, 2));
+// 表4：关键词管理
+const t4 = createTable(cli, baseToken, "关键词管理", [
+  { name: "关键词", type: "text" },
+  { name: "站点", type: "single_select", options: [{ name: "US" }] },
+  { name: "状态", type: "single_select", options: [{ name: "启用" }, { name: "停用" }] },
+  { name: "创建时间", type: "datetime", style: { format: "yyyy-MM-dd HH:mm" } },
+]);
+
+// 表5：搜索排名
+const t5 = createTable(cli, baseToken, "搜索排名", [
+  { name: "关键词", type: "text" },
+  { name: "目标ASIN", type: "text" },
+  { name: "商品标题", type: "text" },
+  { name: "是否出现", type: "single_select", options: [{ name: "是" }, { name: "否" }] },
+  { name: "自然位排名", type: "number" },
+  { name: "广告位排序+ASIN", type: "text" },
+  { name: "自然位排序+ASIN", type: "text" },
+  { name: "状态", type: "single_select", options: [{ name: "已完成" }, { name: "失败" }] },
+  { name: "抓取时间", type: "datetime", style: { format: "yyyy-MM-dd HH:mm" } },
+]);
+
+console.log("\n✅ 五张表创建成功，请将以下 ID 填入 config.json 的 tables 字段：\n");
+console.log(JSON.stringify({ asins: t1, wordfreq: t2, rufus: t3, keywords: t4, search_rank: t5 }, null, 2));
