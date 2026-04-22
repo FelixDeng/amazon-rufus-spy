@@ -99,17 +99,18 @@ Ask the following questions **one at a time**, collect all answers, then write f
 
 **Q2:** "请输入飞书 Base token（在飞书多维表格 URL 中，形如 SJnBbwm1...）"
 
-**Q3:** "你的飞书 Base 里是否已有三张分析表（商品列表、词频分析、RUFUS 问答）？  
+**Q3:** "你的飞书 Base 里是否已有五张分析表（商品列表、词频分析、RUFUS 问答、关键词管理、搜索排名）？  
 A — 已有，我来输入表 ID  
 B — 还没有，帮我自动创建"
 
-If A: ask for the three table IDs one by one (asins table, wordfreq table, rufus table).
+If A: ask for the five table IDs one by one (asins table, wordfreq table, rufus table, keywords table, search_rank table).
 
 If B: run the init script to create them:
 ```bash
-cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/amazon-init-tables.mjs
+cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/amazon-init-tables.mjs --base-token <Q2_ANSWER>
 ```
-Parse the output for three table IDs (lines like `表 "商品ASIN列表" 创建成功: tblXXX`).
+Parse the JSON output for five table IDs: `asins`, `wordfreq`, `rufus`, `keywords`, `search_rank`.
+After creation, tell the user: "五张表已创建。请在飞书「关键词管理」表中添加关键词并将状态设为「启用」，然后可运行 Stage 4 搜索排名分析。"
 
 **Q4:** "配送地区邮编？（直接回车使用默认值 10010）"
 Default: `10010`
@@ -129,7 +130,9 @@ Write config files:
   "tables": {
     "asins": "<ASINS_TABLE_ID>",
     "wordfreq": "<WORDFREQ_TABLE_ID>",
-    "rufus": "<RUFUS_TABLE_ID>"
+    "rufus": "<RUFUS_TABLE_ID>",
+    "keywords": "<KEYWORDS_TABLE_ID>",
+    "search_rank": "<SEARCH_RANK_TABLE_ID>"
   },
   "asins": ["<ASIN1>", "<ASIN2>"]
 }
@@ -177,6 +180,8 @@ export AMAZON_SPY_DIR=~/.amazon-rufus-spy
 | 只跑 RUFUS / stage 3 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/run-all.mjs --stage 3` |
 | 强制重跑 / force | append `--force` to the command above |
 | 指定 ASIN，例如"只跑 B0XX 和 B0YY" | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/amazon-scrape-rufus.mjs --asins B0XX,B0YY` |
+| 搜索排名分析 / stage 4 / 关键词排名 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/run-all.mjs --stage 4` |
+| 指定关键词搜索排名 | `cd "$SKILL_DIR" && AMAZON_SPY_DIR=~/.amazon-rufus-spy node scripts/amazon-search-rank.mjs --keywords "webcam,4K webcam"` |
 
 Stream all output to the user in real time.
 
@@ -191,6 +196,10 @@ After the command exits, summarize in natural language. Parse the output for the
 - `[skip] <ASIN>: 未检测到 RUFUS 模块` → no RUFUS on that product page (normal)
 - `[skip] <ASIN>: 状态已完成` → already done, skipped (normal)
 - `[error] <ASIN>:` → failure, show the error message
+- `[ok] <ASIN>: 出现 自然位#N` → Stage 4: target ASIN found at organic rank N
+- `[ok] <ASIN>: 出现 自然位#—(广告位)` → Stage 4: target ASIN found in sponsored only
+- `[ok] <ASIN>: 未出现` → Stage 4: target ASIN not on page 1 for this keyword
+- `[skip] <ASIN>: 状态已完成` → Stage 4: already done for this keyword+ASIN pair (normal)
 
 Example report:
 > "分析完成！共处理 10 个竞品，结果已写入飞书：
@@ -199,6 +208,12 @@ Example report:
 > - RUFUS 问答（表3）：84 条
 >
 > 跳过 2 个商品（B088TSR6YJ、B0DDTH3HX8），原因：这两个商品页面暂无 RUFUS 问答模块，属正常情况，不影响其他数据。"
+
+For Stage 4, report like:
+> "搜索排名分析完成！共检查 5 个关键词 × 10 个目标 ASIN：
+> - 「wireless webcam」：B0BXGFFSL1 出现在自然位 #3
+> - 「4K webcam」：B0BXGFFSL1 未出现，B085TFF7M1 出现在广告位
+> 结果已写入飞书搜索排名表。"
 
 Include the Feishu Base URL if available:
 `https://bytedance.feishu.cn/base/<baseId>`
