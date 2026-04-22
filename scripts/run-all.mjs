@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * 入口：顺序执行三个阶段。
+ * 入口：顺序执行分析阶段。
  *
  * 用法：
- *   node scripts/run-all.mjs           （跳过状态已完成的 ASIN）
- *   node scripts/run-all.mjs --force   （强制全量重跑）
- *   node scripts/run-all.mjs --stage 1 （只跑阶段1）
- *   node scripts/run-all.mjs --stage 2 （只跑阶段2）
- *   node scripts/run-all.mjs --stage 3 （只跑阶段3）
+ *   node scripts/run-all.mjs             （跑阶段 1-3，跳过已完成）
+ *   node scripts/run-all.mjs --force     （强制全量重跑阶段 1-3）
+ *   node scripts/run-all.mjs --stage 1   （只跑阶段1：文案抓取）
+ *   node scripts/run-all.mjs --stage 2   （只跑阶段2：词频分析）
+ *   node scripts/run-all.mjs --stage 3   （只跑阶段3：RUFUS问答）
+ *   node scripts/run-all.mjs --stage 4   （只跑阶段4：搜索排名）
  */
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -40,15 +41,17 @@ const stages = {
   "1": () => runStage("阶段1：文案抓取", "amazon-scrape-listings.mjs", force),
   "2": () => runStage("阶段2：词频分析", "amazon-analyze-wordfreq.mjs"),
   "3": () => runStage("阶段3：RUFUS抓取", "amazon-scrape-rufus.mjs", force),
+  "4": () => runStage("阶段4：搜索排名", "amazon-search-rank.mjs", force),
 };
 
 if (stageArg) {
   if (!stages[stageArg]) {
-    console.error(`未知阶段: --stage ${stageArg}（可选: 1, 2, 3）`);
+    console.error(`未知阶段: --stage ${stageArg}（可选: 1, 2, 3, 4）`);
     process.exit(1);
   }
   stages[stageArg]();
 } else {
+  // Default: run stages 1-3 only (stage 4 requires keywords table to be populated)
   stages["1"]();
   stages["2"]();
   stages["3"]();
