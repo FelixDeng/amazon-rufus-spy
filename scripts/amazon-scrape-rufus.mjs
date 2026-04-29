@@ -114,12 +114,31 @@ async function getRufusQuestions(page) {
  */
 async function openRufusSidebar(page) {
   const pill = await page.$("button.rufus-pill").catch(() => null);
-  if (!pill) return false;
+  if (!pill) { console.warn("[rufus] openSidebar: 找不到 pill"); return false; }
   await pill.scrollIntoViewIfNeeded();
-  await page.waitForTimeout(300);
-  await pill.click({ force: true });
-  const panel = await page.waitForSelector("#nav-flyout-rufus", { timeout: 15000 }).catch(() => null);
-  if (!panel) return false;
+  await page.waitForTimeout(500);
+  await page.evaluate(el => el.click(), pill);
+  console.log("[rufus] pill 已点击，等待侧边栏...");
+  // Try multiple known panel selectors (Amazon occasionally renames these)
+  const PANEL_SELECTORS = [
+    "#nav-flyout-rufus",
+    "[id^='rufus-panel']",
+    "[id^='nav-flyout-rufus']",
+    "#rufus-panel",
+    ".rufus-panel",
+    "[data-csa-c-content-id='rufus']",
+  ];
+  const selectorStr = PANEL_SELECTORS.join(", ");
+  const panel = await page.waitForSelector(selectorStr, { timeout: 25000 }).catch(() => null);
+  if (!panel) {
+    // Log what RUFUS-related elements exist for debugging
+    const found = await page.evaluate(() => {
+      const els = [...document.querySelectorAll("[id*='rufus'], [class*='rufus']")];
+      return els.map(el => `${el.tagName}#${el.id}.${el.className}`).slice(0, 10);
+    }).catch(() => []);
+    console.warn("[rufus] 侧边栏未找到，页面上的 rufus 元素:", found.join(" | ") || "无");
+    return false;
+  }
   await page.waitForTimeout(1500);
   return true;
 }

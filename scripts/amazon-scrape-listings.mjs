@@ -63,7 +63,7 @@ async function setDeliveryZip(page, zip) {
   await page.click("#GLUXZipUpdate, [data-action='GLUXPostalUpdateAction']");
   await page.waitForTimeout(2000);
   const doneBtn = await page.$(".a-popover-footer button, #GLUXConfirmClose").catch(() => null);
-  if (doneBtn) await doneBtn.click();
+  if (doneBtn) await page.evaluate(el => el.click(), doneBtn);
   await page.waitForTimeout(1000);
   console.log("[zip] 配送地区设置完成");
 }
