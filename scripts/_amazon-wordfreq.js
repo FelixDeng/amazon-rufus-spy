@@ -24,6 +24,8 @@ export function generateNgrams(words, n) {
   return result;
 }
 
+// Secondary boundary guard: tokenize() already strips stopwords, so this mainly
+// protects callers who pass raw (non-tokenized) words directly.
 export function isValidNgram(phraseWords, stopwords) {
   return !stopwords.has(phraseWords[0]) && !stopwords.has(phraseWords[phraseWords.length - 1]);
 }
@@ -53,6 +55,8 @@ export function computeAllNgramRows(asin, text, source, batch, stopwords) {
   }));
 }
 
+// Returns Map<phrase, Set<ASIN>> for cross-ASIN threshold filtering (≥N distinct ASINs).
+// Does not aggregate total occurrence count — use allRows directly for that.
 export function aggregateNgrams(allRows) {
   const map = new Map();
   for (const row of allRows) {

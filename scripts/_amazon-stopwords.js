@@ -9,5 +9,5 @@ export const STOPWORDS = new Set([
   "own","same","so","than","too","very","just","up","out","if","about","into",
   "through","during","before","after","above","below","between","over","under",
   "again","then","here","there","any","also","new","get","use","one","two",
-  "s","re","ve","ll","d","t","m","&","w",
+  "re","ve","ll",
 ]);

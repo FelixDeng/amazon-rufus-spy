@@ -55,3 +55,18 @@ test("aggregateNgrams: 跨 ASIN 聚合", () => {
   assert.equal(map.get("ai camera").size, 2);
   assert.equal(map.get("streaming").size, 1);
 });
+
+test("tokenize: 空字符串返回空数组", () => {
+  assert.deepEqual(tokenize("", STOPWORDS), []);
+});
+
+test("tokenize: 只有空白返回空数组", () => {
+  assert.deepEqual(tokenize("   ", STOPWORDS), []);
+});
+
+test("computeAllNgramRows: 重复词出现次数大于1", () => {
+  const rows = computeAllNgramRows("B001", "camera camera", "标题", "2026-04-29", STOPWORDS);
+  const cameraRow = rows.find(r => r["词语"] === "camera" && r["词语长度"] === 1);
+  assert.ok(cameraRow, "should have a unigram row for 'camera'");
+  assert.equal(cameraRow["出现次数"], 2);
+});
